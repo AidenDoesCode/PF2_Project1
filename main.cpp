@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <limits>
 #include "Person.h"
 
 // Parses a single CSV line into fields, respecting double-quoted fields
@@ -41,19 +42,18 @@ vector<string> parseCSVLine(const string& line) {
     return fields;
 }
 
-int main() {
-    const string filename = "computer_scientists.csv";
-    ifstream file(filename);
+void initInputFile(const string& fileName, vector<Person>& people)
+{
+    ifstream file(fileName);
 
     if (!file.is_open()) {
-        cerr << "Error: could not open file " << filename << endl;
-        return 1;
+        cerr << "Error: could not open file " << fileName << endl;
+        return; // just exit the function
     }
 
     string line;
     bool isHeader = true;
     vector<string> headers;
-    vector<Person> people;
 
     while (getline(file, line)) {
         if (line.empty()) continue;
@@ -66,28 +66,62 @@ int main() {
             continue; // skip building a Person from the header row
         }
 
-        // Guard against malformed rows that don't have enough fields
         if (fields.size() < 4) {
             cerr << "Warning: skipping malformed row: " << line << endl;
             continue;
         }
 
-        // fields[0] = FirstName, fields[1] = LastName,
-        // fields[2] = BirthYear,  fields[3] = Accomplishment
         string firstName = fields[0];
         string lastName  = fields[1];
-        int birthYear    = stoi(fields[2]); // convert string -> int
+        int birthYear    = stoi(fields[2]);
         string whatDid   = fields[3];
 
         people.push_back(Person(firstName, lastName, birthYear, whatDid));
     }
 
     file.close();
+}
 
-    // Now print each Person using the class's own method
+//print the UI
+void printMenu()
+{
+
+    cout << "Please choose which option you want to do." << endl;
+    cout << "1. Read Input File. " << endl;
+    cout << "2. Search by first name. " << endl;
+    cout << "3. Search by last name. " << endl;
+    cout << "4. Search by birth year. " << endl;
+
+    getUserChoice();
+}
+
+int getUserChoice
+{
+    int userChoice;
+
+    // Loop continues as long as the input fails to parse as an integer
+    while (!(cin >> userChoice)) 
+    {
+        cout << "Invalid input! Please enter a valid integer: ";
+        
+        cin.clear(); //clear the error flag so cin can function again
+        
+        //Discard everything remaining in the input buffer until the next newline
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    return userChoice
+}
+
+int main() {
+    //init vector of people objects, empty right now
+    vector<Person> people;
+
+
+    //loop to print the objects for checking
     for (const Person& p : people) {
         p.printPerson();
     }
 
     return 0;
 }
+
